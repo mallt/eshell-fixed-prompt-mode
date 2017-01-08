@@ -27,6 +27,11 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (defvar ivy-sort-functions-alist))
+
+(require 'em-prompt)
+(require 'em-hist)
 (require 's)
 
 (defun eshell-fixed-prompt-send-input ()
