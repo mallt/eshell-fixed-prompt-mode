@@ -1,4 +1,4 @@
-;;; eshell-fixed-prompt.el --- Minor mode to restrict eshell to a single fixed prompt -*- lexical-binding: t -*-
+;;; eshell-fixed-prompt.el --- Restrict eshell to a single fixed prompt -*- lexical-binding: t -*-
 
 ;; Copyright © 2017 Tijs Mallaerts
 ;;
