@@ -62,6 +62,10 @@
    (eshell-fixed-prompt-input-start-position)
    (line-end-position)))
 
+(defun eshell-fixed-prompt-prompt-line-count ()
+    "Return the number of lines of the prompt."
+  (length (s-split "\n" (funcall eshell-prompt-function))))
+
 (defun eshell-fixed-prompt-remove-next-prompt ()
   "Remove the next eshell prompt."
   (let ((first-prompt-line (save-excursion
@@ -74,14 +78,20 @@
     (when (and (/= first-prompt-line last-line)
                (save-excursion
                  (forward-line last-line)
-                 (s-contains? (funcall eshell-prompt-function)
-                              (buffer-substring-no-properties
-                               (line-beginning-position)
-                               (line-end-position)))))
+                 (let ((prompt (funcall eshell-prompt-function)))
+                   (s-contains? prompt
+                                (buffer-substring-no-properties
+                                 (save-excursion
+                                   (forward-line (- 1 (eshell-fixed-prompt-prompt-line-count)))
+                                   (line-beginning-position))
+                                 (line-end-position))))))
       (save-excursion
         (forward-line last-line)
-        (delete-region (line-beginning-position)
-                       (line-end-position))))))
+        (delete-region
+         (save-excursion
+           (forward-line (- 1 (eshell-fixed-prompt-prompt-line-count)))
+           (line-beginning-position))
+         (line-end-position))))))
 
 (defun eshell-fixed-prompt-goto-input-start ()
   "Move to start of input and remove other prompts."
