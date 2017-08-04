@@ -60,10 +60,19 @@
   "Delete the input at the fixed prompt."
   (delete-region
    (eshell-fixed-prompt-input-start-position)
+   (line-end-position))
+  (remove-overlays
+   (eshell-fixed-prompt-prompt-start-position)
    (line-end-position)))
 
+(defun eshell-fixed-prompt-prompt-start-position ()
+  "Return the start position of the prompt at point."
+  (save-excursion
+    (forward-line (- 1 (eshell-fixed-prompt-prompt-line-count)))
+    (line-beginning-position)))
+
 (defun eshell-fixed-prompt-prompt-line-count ()
-    "Return the number of lines of the prompt."
+  "Return the number of lines of the prompt."
   (length (s-split "\n" (funcall eshell-prompt-function))))
 
 (defun eshell-fixed-prompt-remove-next-prompt ()
@@ -81,16 +90,12 @@
                  (let ((prompt (funcall eshell-prompt-function)))
                    (s-contains? prompt
                                 (buffer-substring-no-properties
-                                 (save-excursion
-                                   (forward-line (- 1 (eshell-fixed-prompt-prompt-line-count)))
-                                   (line-beginning-position))
+                                 (eshell-fixed-prompt-prompt-start-position)
                                  (line-end-position))))))
       (save-excursion
         (forward-line last-line)
         (delete-region
-         (save-excursion
-           (forward-line (- 1 (eshell-fixed-prompt-prompt-line-count)))
-           (line-beginning-position))
+         (eshell-fixed-prompt-prompt-start-position)
          (line-end-position))))))
 
 (defun eshell-fixed-prompt-goto-input-start ()
