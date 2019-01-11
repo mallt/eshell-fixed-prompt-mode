@@ -102,11 +102,16 @@
   "Move to start of input and remove other prompts."
   (let ((curr-line (buffer-substring-no-properties (line-beginning-position)
                                                    (line-end-position))))
-    (unless (or (s-contains? "password" curr-line)
-                (s-contains? "passphrase" curr-line))
-      (eshell-goto-input-start)
-      (eshell-fixed-prompt-delete-input)
-      (eshell-fixed-prompt-remove-next-prompt))))
+    (if (s-contains? "?" curr-line)
+        (let ((str (read-string "Input: ")))
+          (if (stringp str)
+              (process-send-string (eshell-interactive-process)
+                                   (concat str "\n"))))
+      (unless (or (s-contains? "password" curr-line)
+                  (s-contains? "passphrase" curr-line))
+        (eshell-goto-input-start)
+        (eshell-fixed-prompt-delete-input)
+        (eshell-fixed-prompt-remove-next-prompt)))))
 
 (defun eshell-fixed-prompt-select-history-item ()
   "Select eshell history item."
