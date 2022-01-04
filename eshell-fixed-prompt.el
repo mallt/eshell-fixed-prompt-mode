@@ -34,21 +34,30 @@
 (require 'em-hist)
 (require 's)
 
+(defun eshell-fixed-prompt-send-input-without-output-filter ()
+  "Insert prompt in buffer."
+  (setq-local eshell-output-filter-functions
+              (delete 'eshell-fixed-prompt-goto-input-start
+                      eshell-output-filter-functions))
+  (eshell-send-input)
+  (add-to-list 'eshell-output-filter-functions
+               'eshell-fixed-prompt-goto-input-start))
+
 (defun eshell-fixed-prompt-send-input ()
   "Send input and keep fixed prompt."
   (interactive)
   (let ((prompt-before (funcall eshell-prompt-function))
-        (cmd (buffer-substring (eshell-fixed-prompt-input-start-position)
-                               (line-end-position))))
+        (cmd (buffer-substring-no-properties (eshell-fixed-prompt-input-start-position)
+                                             (line-end-position))))
     (unless (s-blank? cmd)
       (eshell/clear-scrollback)
-      (eshell-send-input)
+      (eshell-fixed-prompt-send-input-without-output-filter)
       (insert cmd)
       (eshell-send-input)
       (let ((prompt-after (funcall eshell-prompt-function)))
         (unless (string= prompt-before prompt-after)
           (eshell/clear-scrollback)
-          (eshell-send-input))))))
+          (eshell-fixed-prompt-send-input-without-output-filter))))))
 
 (defun eshell-fixed-prompt-input-start-position ()
   "Return the start position of the fixed prompt."
